@@ -136,7 +136,7 @@
 function init() {
     mostrarDatos();
     obtenerJSON("DB/db.json");
-    restaurarCarrito();
+    actualizarCarrito();
 }
 
 //punto 1
@@ -213,11 +213,12 @@ function filtrarFrutas(frutas)
 //punto 5
 function clickAgregarAlCarrito(nombre, precio)
 {
-
-    agregarAlCarrito(nombre, precio);
     agregarFrutaALocalStorage(nombre, precio);
+
+    actualizarCarrito();
+    
 }
-function agregarAlCarrito(nombre, precio)
+function agregarAlCarrito(nombre, precio, cantidad)
 {
     let estaFruta = {"nombre":nombre, "precio":precio};
     
@@ -226,7 +227,7 @@ function agregarAlCarrito(nombre, precio)
     const zonaCarrito = document.querySelector("#cart-items");
 
     zonaCarrito.innerHTML += `<li class="item-block">
-            <p class="item-name">${nombre} - $${precio}</p>
+            <p class="item-name">${nombre} - $${precio} X cantidad:${cantidad}</p>
             <button class="delete-button">Eliminar</button>
         </li>`;
     
@@ -235,9 +236,9 @@ function agregarAlCarrito(nombre, precio)
 
 function agregarFrutaALocalStorage(nombre, precio)
 {
-    let fruta = {"nombre":nombre, "precio":precio};
+    let fruta = {"nombre":nombre, "precio":precio, "cantidad":1};
     let compra=[];
-    console.log("holaaa", localStorage.getItem("frutas"));
+    //console.log("holaaa", localStorage.getItem("frutas"));
     if(localStorage.getItem("frutas") != null)
     {
       
@@ -248,44 +249,66 @@ function agregarFrutaALocalStorage(nombre, precio)
 
     compra.push(fruta);
   
-
-    localStorage.setItem("frutas", JSON.stringify(compra));
+    if(!aumentarCantidadDeFrutaSiExiste(nombre))
+    {
+        localStorage.setItem("frutas", JSON.stringify(compra));
+    }
+    
 
 
 }
 
-function restaurarCarrito()
+function actualizarCarrito()
 {
     if(localStorage.getItem("frutas"))
     {
         let historialFrutas=JSON.parse(localStorage.getItem("frutas"));
-        
+        const zonaCarrito = document.querySelector("#cart-items");
+        let precio = 0;
+
+        zonaCarrito.innerHTML = "";
         historialFrutas.forEach(fruta => {
-            agregarAlCarrito(fruta.nombre, fruta.precio);
+            agregarAlCarrito(fruta.nombre, fruta.precio, fruta.cantidad);
+            precio += fruta.precio * fruta.cantidad;
         });
+        actualizarPrecio(precio);
     }
+    
 
 }
 
-function obtenerCantidadEnLocalStorage(nombreFruta)
+function aumentarCantidadDeFrutaSiExiste(nombreFruta)
 {
-    let cantidad = 0;
+    let frutaRegistrada = false;
     if(localStorage.getItem("frutas"))
     {
 
         let frutasLocales=JSON.parse(localStorage.getItem("frutas"));
         
         frutasLocales.forEach(frutaLocal => {
+            console.log("wowowow")
             if(frutaLocal.nombre == nombreFruta)
                 {
-                    cantidad = frutaLocal.cantidad;
+                    frutaRegistrada = true;
+                    frutaLocal.cantidad += 1;
+
                 }
         });
+        localStorage.clear();
+        localStorage.setItem("frutas", JSON.stringify(frutasLocales));
 
     }
+    return frutaRegistrada;
 
 }
 
+function actualizarPrecio(precio)
+{
+    const tagPrecio = document.querySelector("#total-price");
+    tagPrecio.innerHTML = `$${precio}.00`;
+
+
+}
 
 
 
