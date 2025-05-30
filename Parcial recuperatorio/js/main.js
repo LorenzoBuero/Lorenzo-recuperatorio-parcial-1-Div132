@@ -129,7 +129,176 @@
     * Inmediatamente después de mostrar la alerta, el **carrito debe vaciarse** por completo (tanto visualmente como en `localStorage`).
 */
 
-// Función inicializadora
+
+    init();
+
+
 function init() {
-  // Aquí deben invocarse todas las funciones necesarias para que la aplicación comience a funcionar
+    mostrarDatos();
+    obtenerJSON("DB/db.json");
+    restaurarCarrito();
 }
+
+//punto 1
+function mostrarDatos()
+{
+    const datos = {nombre:"Lorenzo", apellido:"buero"};
+
+    const datosMostrados = (datos.nombre + " " + datos.apellido);
+
+    console.log(datosMostrados);
+
+    const nombreApellidoHTML = document.querySelector(".nombreAlumno");
+
+    nombreApellidoHTML.innerHTML += datosMostrados;  
+}
+
+//punto 2
+async function obtenerJSON(url)
+{
+    let frutas = await (await fetch(url)).json();
+    mostrarFrutasEnHTML(frutas);
+    filtrarFrutas(frutas);
+    
+    //filtrarFrutas(frutas);
+}
+
+//punto 3
+function mostrarFrutasEnHTML(frutas)
+{
+    const lugarDeLasFrutas = document.querySelector(".product-grid");
+    lugarDeLasFrutas.innerHTML = "";
+    console.log("falalalalal")
+    frutas.forEach(fruta => {
+        
+
+        lugarDeLasFrutas.innerHTML += `<div class="product-card">
+                                            <img src="${fruta.img}" alt="${fruta.nombre}">
+                                            <h3>${fruta.nombre}</h3>
+                                            <p>$${fruta.precio}</p>
+                                            <button class="add-to-cart" onclick="clickAgregarAlCarrito('${fruta.nombre}', '${fruta.precio}')">Agregar a carrito</button>
+                                        </div>`
+                                        //
+    });
+
+
+}
+
+
+//punto 4
+function filtrarFrutas(frutas)
+{
+    const buscador = document.querySelector(".search-bar");
+    let frutasFiltradas = frutas;
+    buscador.onkeyup = ()=>{
+        frutasFiltradas = [];
+
+        frutas.forEach(fruta => {
+                    if(String(fruta.nombre).includes(buscador.value))
+                    {
+                        //console.log(fruta);
+                        frutasFiltradas.push(fruta);
+
+                    }
+            
+                }   
+            );
+            mostrarFrutasEnHTML(frutasFiltradas);
+        }
+        
+        
+}
+
+
+//punto 5
+function clickAgregarAlCarrito(nombre, precio)
+{
+
+    agregarAlCarrito(nombre, precio);
+    agregarFrutaALocalStorage(nombre, precio);
+}
+function agregarAlCarrito(nombre, precio)
+{
+    let estaFruta = {"nombre":nombre, "precio":precio};
+    
+    //frutasEnCarrito.push(estaFruta);
+
+    const zonaCarrito = document.querySelector("#cart-items");
+
+    zonaCarrito.innerHTML += `<li class="item-block">
+            <p class="item-name">${nombre} - $${precio}</p>
+            <button class="delete-button">Eliminar</button>
+        </li>`;
+    
+
+}
+
+function agregarFrutaALocalStorage(nombre, precio)
+{
+    let fruta = {"nombre":nombre, "precio":precio};
+    let compra=[];
+    console.log("holaaa", localStorage.getItem("frutas"));
+    if(localStorage.getItem("frutas") != null)
+    {
+      
+        compra = JSON.parse(localStorage.getItem("frutas"));
+        
+    }
+    
+
+    compra.push(fruta);
+  
+
+    localStorage.setItem("frutas", JSON.stringify(compra));
+
+
+}
+
+function restaurarCarrito()
+{
+    if(localStorage.getItem("frutas"))
+    {
+        let historialFrutas=JSON.parse(localStorage.getItem("frutas"));
+        
+        historialFrutas.forEach(fruta => {
+            agregarAlCarrito(fruta.nombre, fruta.precio);
+        });
+    }
+
+}
+
+function obtenerCantidadEnLocalStorage(nombreFruta)
+{
+    let cantidad = 0;
+    if(localStorage.getItem("frutas"))
+    {
+
+        let frutasLocales=JSON.parse(localStorage.getItem("frutas"));
+        
+        frutasLocales.forEach(frutaLocal => {
+            if(frutaLocal.nombre == nombreFruta)
+                {
+                    cantidad = frutaLocal.cantidad;
+                }
+        });
+
+    }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
