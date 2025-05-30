@@ -286,7 +286,6 @@ function aumentarCantidadDeFrutaSiExiste(nombreFruta)
         let frutasLocales=JSON.parse(localStorage.getItem("frutas"));
         
         frutasLocales.forEach(frutaLocal => {
-            console.log("wowowow")
             if(frutaLocal.nombre == nombreFruta)
                 {
                     frutaRegistrada = true;
@@ -294,6 +293,46 @@ function aumentarCantidadDeFrutaSiExiste(nombreFruta)
 
                 }
         });
+        localStorage.clear();
+        localStorage.setItem("frutas", JSON.stringify(frutasLocales));
+
+    }
+    return frutaRegistrada;
+
+}
+
+function disminuirCantidadDeFrutaSiExiste(nombreFruta)
+{
+    let removerFruta =false;
+    let frutaARemover;
+    if(localStorage.getItem("frutas"))
+    {
+
+        let frutasLocales=JSON.parse(localStorage.getItem("frutas"));
+        
+        frutasLocales.forEach(frutaLocal => {
+            if(frutaLocal.nombre == nombreFruta)
+                {
+                    
+                    frutaLocal.cantidad -= 1;
+                    
+                    if(frutaLocal.cantidad <= 0) 
+                    {
+                        frutasLocales.pop(frutaLocal);
+                        removerFruta = true;
+                        frutaARemover = frutaLocal;
+                    }
+
+                }
+        });
+        if(removerFruta)
+            {
+                frutasLocales.pop(frutaARemover);
+            }
+
+
+
+
         localStorage.clear();
         localStorage.setItem("frutas", JSON.stringify(frutasLocales));
 
